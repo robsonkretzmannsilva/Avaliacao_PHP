@@ -1,13 +1,11 @@
 <?php
 require __DIR__ . "/../source/autoload.php";
 
-use Source\Models\Colors;
+use Source\Models\User;
 
-$colors = new Colors();
+$colors = new User();
 if (filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT)) {
     $id = filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT);
     $colors->destroy("id = " . $id);
-    header("location: cores.php");
-} else {
-    var_dump("erro");
+    header("location: ../index.php");
 }

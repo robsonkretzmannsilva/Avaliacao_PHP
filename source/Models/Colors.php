@@ -30,12 +30,18 @@ class Colors
     {
         $conn = Connect::getInstance();
         if (!empty($terms)) {
-            $conn->query("delete from colors where {$terms}");
+            $delete = $conn->query("delete from colors where {$terms}");
 
         } else {
             $conn->query("delete from colors");
 
         }
+
+        $terms = explode(" = ", $terms);
+        $idcolor = $terms[1];
+
+        $cor = $conn->query("delete from user_colors where color_id = $idcolor");
+
 
         return null;
 
@@ -63,7 +69,7 @@ class Colors
     {
         if (!empty($data)) {
             $conn = Connect::getInstance();
-            $result = $conn->query("UPDATE colors set name =" . "'" . $data . "'" . "where id =" . $id);
+            $result = $conn->query("UPDATE colors set name = " . "'" . $data . "'" . "where id = " . $id);
 
 
             if ($result) {

@@ -58,9 +58,9 @@ $user = (new User())->all();
                         <tr>
                             <td><?= $users->name ?></td>
                             <td><?= $users->email ?></td>
-                            <td><a href="view/editar.php" data-toggle="tooltip"
+                            <td><a href="view/editar.php?id=<?= $users->id ?>" data-toggle="tooltip"
                                    title="Editar"><i class="bi bi-file-earmark-text"></i></a>
-                                <a href="view/editar.php" data-toggle="tooltip"
+                                <a href="view/deletar.php?id=<?= $users->id ?>" data-toggle="tooltip"
                                    title="Deletar"><i class="bi bi-trash"></i></a></td>
                         </tr>
                     <?php endforeach; ?>
@@ -71,6 +71,7 @@ $user = (new User())->all();
                 <?php endif; ?>
                 </tbody>
             </table>
+
 
         </div>
 

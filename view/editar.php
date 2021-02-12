@@ -3,11 +3,35 @@
 use Source\Models\Colors;
 use Source\Models\User;
 
-$colors = (new Colors())->all();
+$conn = \Source\Core\Connect::getInstance();
+$cores = new Colors();
+
 $user = new User();
+if (filter_input(INPUT_GET, "id", FILTER_SANITIZE_STRING)) {
+    $id = filter_input(INPUT_GET, "id", FILTER_SANITIZE_STRING);
+    $users = $user->findid($id);
+    $colorsrealc = $conn->query("select cor.id,cor.name from colors as cor, user_colors as usucor where usucor.color_id = cor.id and usucor.user_id =   $id");
+
+    $colors = $conn->query("SELECT * FROM  colors where id not in (select colors.id from colors, user_colors where user_colors.color_id = colors.id and user_colors.user_id = $id )");
+
+
+    if (empty($colors)) {
+        $colors = $conn->query("SELECT * FROM  colors");
+    }
+}
+$message = null;
 
 if (filter_input_array(INPUT_POST, FILTER_DEFAULT)) {
-    $user->save($_POST);
+    $message = $user->update($_POST, $id);
+    $users = $user->findid($id);
+    $colorsrealc = $conn->query("select cor.id,cor.name from colors as cor, user_colors as usucor where usucor.color_id = cor.id and usucor.user_id =   $id");
+
+    $colors = $conn->query("SELECT * FROM  colors where id not in (select colors.id from colors, user_colors where user_colors.color_id = colors.id and user_colors.user_id = $id )");
+
+
+    if (empty($colors)) {
+        $colors = $conn->query("SELECT * FROM  colors");
+    }
 }
 
 ?>
@@ -50,43 +74,57 @@ if (filter_input_array(INPUT_POST, FILTER_DEFAULT)) {
     </section>
 
     <div class="album py-5 bg-light">
-        <form method="post" name="frmfrutas" action="#" id="frmfrutas">
-            <div class="container">
-                <div class="form-group row">
-                    <label class="col-form-label">Nome:</label>
-                    <div class="col-sm-6">
-                        <input type="text" name="name" class="form-control">
+        <?php if ($message): ?>
+            <p class="badge-success"><?= $message ?></p>
+        <?php endif; ?>
+        <?php if ($users): ?>
+            <?php foreach ($users as $usu): ?>
+                <form method="post" name="frmfrutas" action="#" id="frmfrutas">
+                    <div class="container">
+                        <div class="form-group row">
+                            <label class="col-form-label">Nome:</label>
+                            <div class="col-sm-6">
+                                <input type="text" name="name" value="<?= $usu->name ?>" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-form-label">Email:</label>
+                            <div class="col-sm-6">
+                                <input type="email" name="email" value="<?= $usu->email; ?>" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <select multiple="multiple" name="opcoes[]" id="fruit_select">
+                                <?php if ($colors): ?>
+                                    <?php foreach ($colors->fetchAll(\PDO::FETCH_CLASS) as $color): ?>
+
+                                        <option value="<?= $color->id ?>"><?= $color->name ?></option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                                <?php if ($colorsrealc): ?>
+                                    <?php foreach ($colorsrealc->fetchAll(\PDO::FETCH_CLASS) as $cor): ?>
+
+                                        <option selected="selected" value="<?= $cor->id ?>"><?= $cor->name ?></option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+                        <div class="form-group row">
+                            <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-dot-circle-o"></i>
+                                Gravar
+                            </button>
+                            &nbsp;
+                            <a href="../index.php" type="submit" class="btn btn-danger btn-sm"><i
+                                        class="fa fa-dot-circle-o"></i>
+                                Cancelar
+                            </a>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group row">
-                    <label class="col-form-label">Email:</label>
-                    <div class="col-sm-6">
-                        <input type="email" name="email" class="form-control">
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <select multiple="multiple" name="opcoes[]" id="fruit_select">
-                        <?php if ($colors): ?>
-                            <?php foreach ($colors as $color): ?>
-
-                                <option value="<?= $color->id ?>"><?= $color->name ?></option>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </select>
-                </div>
-                <div class="form-group row">
-                    <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-dot-circle-o"></i> Gravar
-                    </button>
-                    &nbsp;
-                    <a href="../index.php" type="submit" class="btn btn-danger btn-sm"><i
-                                class="fa fa-dot-circle-o"></i>
-                        Cancelar
-                    </a>
-                </div>
-            </div>
 
 
-        </form>
+                </form>
+            <?php endforeach; ?>
+        <?php endif; ?>
     </div>
 
 </main>
